@@ -17,3 +17,5 @@ services:
         value: your_db_name
       - key: SESSION_SECRET
         value: your_secret_key
+      - key: CLIENT_URL
+        value: https://statuesque-cupcake-f9f206.netlify.app/ # ⬅️ Replace this!
