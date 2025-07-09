@@ -3,11 +3,18 @@ import dotenv from "dotenv";
 import { registerRoutes } from "./routes";
 import { sessionMiddleware } from "./session";
 import { setupAuth } from "./auth"; // 👈 custom login system
+import cors from "cors";
+
 
 // Load environment variables
 dotenv.config();
 
 const app = express();
+
+app.use(cors({  // 👈 Add this
+  origin: process.env.CLIENT_URL,
+  credentials: true
+}));
 
 // Middlewares
 app.use(express.json());
@@ -59,7 +66,7 @@ app.use((req, res, next) => {
     throw err;
   });
 
-  const port = 5000;
+  const port = process.env.PORT || 5000;
   server.listen(
     {
       port,
