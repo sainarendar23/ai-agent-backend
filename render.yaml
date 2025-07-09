@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: ai-agent-backend
+    env: node
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DB_HOST
+        value: your_db_host
+      - key: DB_USER
+        value: your_db_user
+      - key: DB_PASS
+        value: your_db_password
+      - key: DB_NAME
+        value: your_db_name
+      - key: SESSION_SECRET
+        value: your_secret_key
