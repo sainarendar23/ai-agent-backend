@@ -2,20 +2,21 @@ import express, { type Request, Response, NextFunction } from "express";
 import dotenv from "dotenv";
 import { registerRoutes } from "./routes";
 import { sessionMiddleware } from "./session";
+import { setupAuth } from "./auth"; // 👈 custom login system
 
-// Load environment variables from .env
+// Load environment variables
 dotenv.config();
 
 const app = express();
+
+// Middlewares
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+app.use(sessionMiddleware); // 🔐 Session with MySQL
+setupAuth(app);              // 🔑 Custom passport login/logout setup (✅ only once!)
 
-
-app.use(sessionMiddleware); // 🔥 Auto-creates sessions table
-
-// 👇 Logger middleware for /api
+// Logger (optional)
 const log = console.log;
-
 app.use((req, res, next) => {
   const start = Date.now();
   const path = req.path;
@@ -46,7 +47,7 @@ app.use((req, res, next) => {
   next();
 });
 
-// 👇 Bootstrapping
+// 👇 Bootstrapping the server
 (async () => {
   const server = await registerRoutes(app);
 
@@ -66,7 +67,7 @@ app.use((req, res, next) => {
       reusePort: true,
     },
     () => {
-      log(`Backend API server running on http://localhost:${port}`);
+      log(`✅ Backend running on http://localhost:${port}`);
     }
   );
 })();

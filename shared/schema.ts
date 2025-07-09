@@ -12,8 +12,7 @@ import {
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
-// Session storage table.
-// (IMPORTANT) This table is mandatory for Replit Auth, don't drop it.
+// Session storage table
 export const sessions = pgTable(
   "sessions",
   {
@@ -21,14 +20,14 @@ export const sessions = pgTable(
     sess: jsonb("sess").notNull(),
     expire: timestamp("expire").notNull(),
   },
-  (table) => [index("IDX_session_expire").on(table.expire)],
+  (table) => [index("IDX_session_expire").on(table.expire)]
 );
 
-// User storage table.
-// (IMPORTANT) This table is mandatory for Replit Auth, don't drop it.
+// ✅ User table (with password field added)
 export const users = pgTable("users", {
   id: varchar("id").primaryKey().notNull(),
-  email: varchar("email").unique(),
+  email: varchar("email").unique().notNull(),
+  password: text("password").notNull(), // ✅ Required for login
   firstName: varchar("first_name"),
   lastName: varchar("last_name"),
   profileImageUrl: varchar("profile_image_url"),
@@ -40,15 +39,15 @@ export const users = pgTable("users", {
 export const userCredentials = pgTable("user_credentials", {
   id: serial("id").primaryKey(),
   userId: varchar("user_id").references(() => users.id).notNull(),
-  agentType: varchar("agent_type").default("gmail"), // 'gmail', 'github', 'business'
+  agentType: varchar("agent_type").default("gmail"),
   openaiApiKey: text("openai_api_key"),
   gmailAccessToken: text("gmail_access_token"),
   gmailRefreshToken: text("gmail_refresh_token"),
   gmailTokenExpiry: timestamp("gmail_token_expiry"),
-  githubAccessToken: text("github_access_token"), // GitHub-specific
+  githubAccessToken: text("github_access_token"),
   githubUsername: varchar("github_username"),
-  businessApiKey: text("business_api_key"), // Business-specific
-  configData: jsonb("config_data"), // Store agent-specific configuration
+  businessApiKey: text("business_api_key"),
+  configData: jsonb("config_data"),
   resumeLink: text("resume_link"),
   personalDescription: text("personal_description"),
   agentActive: boolean("agent_active").default(false),
@@ -63,9 +62,9 @@ export const emailLogs = pgTable("email_logs", {
   emailId: text("email_id").notNull(),
   fromEmail: text("from_email").notNull(),
   subject: text("subject"),
-  action: text("action").notNull(), // 'reply', 'star', 'ignore'
+  action: text("action").notNull(),
   responseText: text("response_text"),
-  status: text("status").notNull().default('pending'), // 'pending', 'sent', 'failed'
+  status: text("status").notNull().default("pending"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -73,8 +72,8 @@ export const emailLogs = pgTable("email_logs", {
 export const subscriptions = pgTable("subscriptions", {
   id: serial("id").primaryKey(),
   userId: varchar("user_id").references(() => users.id).notNull(),
-  plan: text("plan").notNull().default('free'), // 'free', 'pro', 'enterprise'
-  status: text("status").notNull().default('active'), // 'active', 'cancelled', 'expired'
+  plan: text("plan").notNull().default("free"),
+  status: text("status").notNull().default("active"),
   emailsUsed: integer("emails_used").default(0),
   emailsLimit: integer("emails_limit").default(10),
   createdAt: timestamp("created_at").defaultNow(),
@@ -85,7 +84,7 @@ export const subscriptions = pgTable("subscriptions", {
 export const activities = pgTable("activities", {
   id: serial("id").primaryKey(),
   userId: varchar("user_id").references(() => users.id).notNull(),
-  type: text("type").notNull(), // 'email_reply', 'email_star', 'agent_start', 'agent_stop'
+  type: text("type").notNull(),
   description: text("description").notNull(),
   metadata: jsonb("metadata"),
   createdAt: timestamp("created_at").defaultNow(),
@@ -103,7 +102,7 @@ export type InsertSubscription = typeof subscriptions.$inferInsert;
 export type Activity = typeof activities.$inferSelect;
 export type InsertActivity = typeof activities.$inferInsert;
 
-// ✅ Zod Validation Schemas
+// ✅ Zod Schemas
 export const insertUserCredentialsSchema = createInsertSchema(userCredentials).omit({
   id: true,
   createdAt: true,
@@ -126,7 +125,7 @@ export const insertActivitySchema = createInsertSchema(activities).omit({
   createdAt: true,
 });
 
-// ✅ ✅ Drizzle schema export (FOR db.ts usage)
+// ✅ Export all tables
 export const schema = {
   users,
   userCredentials,
