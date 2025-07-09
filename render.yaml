@@ -2,7 +2,7 @@ services:
   - type: web
     name: ai-agent-backend
     env: node
-    buildCommand: npm install
+    buildCommand: npm install && npm run build
     startCommand: npm run start
     envVars:
       - key: NODE_ENV
@@ -18,4 +18,4 @@ services:
       - key: SESSION_SECRET
         value: your_secret_key
       - key: CLIENT_URL
-        value: https://statuesque-cupcake-f9f206.netlify.app
+        value: https://your-frontend-link.netlify.app
